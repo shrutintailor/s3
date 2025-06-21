@@ -13,7 +13,7 @@ exports.uploadDp = async (req, res, next) => {
         const urlPath = `aws/dp/${name}/${file.originalname}`
         const buffer = file.buffer;
 
-        // await uploadFile(urlPath, buffer, process.env.AWS_BUCKET_NAME, null, file.mimetype)
+        await uploadFile(urlPath, buffer, process.env.AWS_BUCKET_NAME, null, file.mimetype)
 
         return res.send('ok');
     } catch (error) {
