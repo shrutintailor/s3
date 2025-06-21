@@ -9,11 +9,14 @@ const { Users } = initModels(sequelize);
 
 exports.uploadDp = async (req, res, next) => {
     try {
-        const { body: { name }, file } = req;
-        const urlPath = `aws/dp/${name}/${file.originalname}`
+        const { body: { user_name }, file } = req;
+
+        const hasUser = await Users.findOne({ where: { user_name }})
+        if(!hasUser) throw new Error("User exiest.");
+        const urlPath = `aws/dp/${hasUser_id}`
         const buffer = file.buffer;
 
-        // await uploadFile(urlPath, buffer, process.env.AWS_BUCKET_NAME, null, file.mimetype)
+        await uploadFile(urlPath, buffer, process.env.AWS_BUCKET_NAME, null, file.mimetype)
 
         return res.send('ok');
     } catch (error) {
@@ -23,9 +26,12 @@ exports.uploadDp = async (req, res, next) => {
 
 exports.getDp = async (req, res, next ) => {
   try {
-    const { user } = req; 
-    console.log(user)
-    const urlPath = `aws/dp/shrutin/Screenshot (1).png`
+    const { user_name } = req;
+
+    const hasUser = await Users.findOne({ where: { user_name }})
+    if(!hasUser) throw new Error("User exiest.");
+
+    const urlPath = `aws/dp/${hasUser.id}`
     const signedUrl = await getSignedURL(urlPath, process.env.AWS_BUCKET_NAME);
 
     return res.send(signedUrl)
@@ -59,13 +65,13 @@ exports.login = async (req, res, next) => {
 
     // validate user
     const hasUser = await Users.findOne({ where: { user_name }, Attributes: ['id', 'password']} );
-    if (!hasUser) throw new Error("User exiest.");
+    if (!hasUser) throw new Error("User not exiest.");
 
     const match = await bcrypt.compare(String(password), hasUser.password);
     if (!match) return res.status(401).json({ message: 'Invalid credentials' });
   
     const token = jwt.sign({ userId: hasUser.id }, process.env.JWT_SECRET, { expiresIn: '1h' });
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
     res.json({ token })
   } catch (error) {
     next(error)
