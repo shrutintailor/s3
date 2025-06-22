@@ -14,6 +14,10 @@ module.exports = function(sequelize, DataTypes) {
     password: {
       type: DataTypes.STRING(255),
       allowNull: false
+    }, 
+    file_name: {
+      type: DataTypes.TEXT,
+      allowNull: true
     }
   }, {
     sequelize,
